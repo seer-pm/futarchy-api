@@ -162,8 +162,10 @@ app.post('/candles/graphql', async (req, res) => {
         if (!query) {
             return res.status(400).json({ errors: [{ message: '[candles] missing query' }] });
         }
-        // Default to Gnosis (100); callers can override via $chainId variable.
-        const chainId = parseInt(variables?.chainId) || 100;
+        // Default to Gnosis (100); callers can override via $chainId variable
+        // or a ?chainId= query param (lets per-chain frontend endpoint URLs
+        // route without threading variables through every hook).
+        const chainId = parseInt(variables?.chainId) || parseInt(req.query?.chainId) || 100;
         const result = await proxyCandlesQuery(query, variables || {}, chainId);
         res.json(result);
     } catch (err) {
