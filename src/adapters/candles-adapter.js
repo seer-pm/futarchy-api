@@ -48,6 +48,16 @@ function stripChainPrefix(id) {
 /**
  * Add chain prefix for Checkpoint IDs (e.g., "0xf834..." → "100-0xf834...")
  */
+
+// Route candles queries to the right checkpoint instance by chain:
+// chain 1 runs as an isolated deployment (see futarchy-indexers
+// docker-compose.mainnet.yml); everything else stays on the shared instance.
+function candlesUpstream(chainId = 100) {
+    return parseInt(chainId) === 1 && ENDPOINTS.candlesMainnet
+        ? ENDPOINTS.candlesMainnet
+        : ENDPOINTS.candles;
+}
+
 function addChainPrefix(id, chainId = 100) {
     if (!id) return id;
     // Don't double-prefix
@@ -166,7 +176,7 @@ async function checkpoint_fetchPools(proposalAddress, chainId = 100) {
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     const rawPools = data?.pools || [];
 
     // Normalize to match Graph Node shape
@@ -220,7 +230,7 @@ async function checkpoint_fetchCandles(poolId, minTimestamp, maxTimestamp, chain
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     const rawCandles = data?.candles || [];
 
     // Normalize: use periodStartUnix directly (same field name as Graph Node)
@@ -248,7 +258,7 @@ async function checkpoint_getLatestPrice(poolId, maxTimestamp = null, chainId = 
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     const candle = data?.candles?.[0];
     return candle ? parseFloat(candle.close) : 0;
 }
@@ -317,7 +327,7 @@ export async function getLatestPrice(poolId, maxTimestamp = null, chainId = 100)
 export async function proxyCandlesQuery(query, variables = {}, chainId = 100) {
     if (!IS_CHECKPOINT) {
         // Graph Node: pass through directly
-        const data = await gqlFetch(ENDPOINTS.candles, query, variables);
+        const data = await gqlFetch(candlesUpstream(chainId), query, variables);
         return { data };
     }
 
@@ -371,7 +381,7 @@ export async function proxyCandlesQuery(query, variables = {}, chainId = 100) {
 
     console.log(`   [PROXY] Adapted query pool refs for chain ${chainId}`);
 
-    const rawData = await gqlFetch(ENDPOINTS.candles, adaptedQuery, adaptedVars);
+    const rawData = await gqlFetch(candlesUpstream(chainId), adaptedQuery, adaptedVars);
 
     // Normalize response:
     //   - Strip "<chainId>-" prefix from any `id` field (frontend expects plain

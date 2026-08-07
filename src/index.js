@@ -148,6 +148,10 @@ app.post('/subgraphs/name/algebra-proposal-candles-v1', handleGraphQLRequest);
 // ============================================
 app.post('/registry/graphql', makeGraphQLPassthrough(() => ENDPOINTS.registry, 'registry'));
 
+// Isolated mainnet candles checkpoint (chain 1) — plain passthrough, no id
+// translation: the mainnet instance stores un-prefixed pool ids.
+app.post('/candles-mainnet/graphql', makeGraphQLPassthrough(() => ENDPOINTS.candlesMainnet, 'candles-mainnet'));
+
 // /candles/graphql translates plain pool IDs (0xabc...) to chain-prefixed
 // (100-0xabc...) and rewrites response IDs back. This keeps the older
 // frontend (which assumes Graph Node IDs) working against Checkpoint

@@ -28,6 +28,9 @@ const GRAPH_NODE = {
 const CHECKPOINT = {
     registry: process.env.REGISTRY_URL || 'http://localhost:3003/graphql',
     candles: process.env.CANDLES_URL || 'http://localhost:3004/graphql',
+    // Isolated mainnet candles checkpoint (chain 1); see futarchy-indexers
+    // proposals-candles/checkpoint/docker-compose.mainnet.yml (VM port 3002)
+    candlesMainnet: process.env.CANDLES_MAINNET_URL || 'http://localhost:3002/graphql',
 };
 
 export const ENDPOINTS = MODE === 'checkpoint' ? CHECKPOINT : GRAPH_NODE;
@@ -37,3 +40,4 @@ export { MODE };
 console.log(`[endpoints] Mode: ${MODE.toUpperCase()}`);
 console.log(`[endpoints] Registry: ${ENDPOINTS.registry}`);
 console.log(`[endpoints] Candles:  ${ENDPOINTS.candles}`);
+if (ENDPOINTS.candlesMainnet) console.log(`[endpoints] CandlesMainnet: ${ENDPOINTS.candlesMainnet}`);
