@@ -9,15 +9,17 @@
 // CHAIN CONFIGURATION
 // ============================================================================
 
+// Note: GNOSIS_RPC_URL is read by registry-adapter.js too, so both on-chain
+// paths in this service move together when it is set.
 const CHAIN_CONFIG = {
     1: {
         name: 'Ethereum',
-        rpc: 'https://eth.llamarpc.com',
+        rpc: process.env.MAINNET_RPC_URL || 'https://eth.llamarpc.com',
         defaultRateProvider: null  // No default for Ethereum yet
     },
     100: {
         name: 'Gnosis',
-        rpc: 'https://rpc.gnosis.gateway.fm',
+        rpc: process.env.GNOSIS_RPC_URL || 'https://rpc.gnosis.gateway.fm',
         defaultRateProvider: '0x89C80A4540A00b5270347E02e2E144c71da2EceD'  // sDAI
     }
 };
