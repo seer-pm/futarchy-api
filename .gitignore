@@ -10,3 +10,6 @@
 # Lambda artifacts
 lambda-deploy/lambda.zip
 lambda-deploy/dist/
+
+# Netlify build output
+/public

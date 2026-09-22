@@ -11,7 +11,10 @@
  * GraphQL client treats it like a normal failure.
  */
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+// Netlify caps a synchronous function at 10s (26s on Pro). A 15s budget here
+// meant the platform killed the request first and the caller got a generic
+// 502 instead of the upstream-timeout message below.
+const DEFAULT_TIMEOUT_MS = Number(process.env.GRAPHQL_TIMEOUT_MS || 9_000);
 
 export function makeGraphQLPassthrough(getUpstreamUrl, label) {
     return async function handler(req, res) {

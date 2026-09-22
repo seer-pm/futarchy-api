@@ -1,0 +1,20 @@
+[build]
+  # No site to build — this deploy is the API only. Netlify still needs a
+  # publish directory, so point it at an empty one.
+  command = "mkdir -p public"
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Express owns the routing, so hand it every path. Ordered after nothing
+# else, because there is nothing else: this site serves no static content.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true

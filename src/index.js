@@ -176,9 +176,17 @@ app.post('/candles/graphql', async (req, res) => {
     }
 });
 
-// Start server
+// Export the configured app so a serverless wrapper can mount it without
+// binding a port (netlify/functions/api.js). Netlify's runtime is ephemeral:
+// there is no long-lived process to listen, and the background warmer below
+// would never get to run a second tick anyway.
+export { app };
 
-app.listen(PORT, '0.0.0.0', () => {
+// Under Netlify the function wrapper owns the request lifecycle, so skip the
+// listener and the warmer entirely.
+const IS_SERVERLESS = Boolean(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+if (!IS_SERVERLESS) app.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('🚀 Futarchy Local Server Running');
     console.log('─'.repeat(50));
