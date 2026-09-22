@@ -29,11 +29,12 @@ const goldsky = (name, version) =>
 const GRAPH_NODE = {
     registry: process.env.REGISTRY_URL || goldsky('futarchy-registry-gnosis', '1.0.0'),
     candles: process.env.CANDLES_URL || goldsky('futarchy-candles-gnosis', '1.0.0'),
-    // Mainnet (chain 1) is not deployed yet. Leaving this unset makes
-    // candlesUpstream() fall back to the Gnosis endpoint, which would answer
-    // chain-1 queries with Gnosis data instead of erroring — set
-    // CANDLES_MAINNET_URL as soon as a mainnet subgraph exists.
-    candlesMainnet: process.env.CANDLES_MAINNET_URL || null,
+    // Mainnet (chain 1) runs as its own subgraph: Uniswap V3 instead of
+    // Algebra, so it is a separate manifest rather than a second network on
+    // the Gnosis one. Must stay set — candlesUpstream() falls back to the
+    // Gnosis endpoint when it is null, answering chain-1 queries with Gnosis
+    // data instead of erroring.
+    candlesMainnet: process.env.CANDLES_MAINNET_URL || goldsky('futarchy-candles-mainnet', '1.0.0'),
 };
 
 // ⚠️  IMPORTANT: Port mapping for Checkpoint indexers:
