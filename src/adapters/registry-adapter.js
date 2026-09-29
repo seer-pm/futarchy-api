@@ -402,7 +402,15 @@ export async function resolveProposalId(proposalId) {
         return null;
     }
 
-    // 5. Use ID directly for Futarchy proposal/trading contract addresses.
+    // 5. A trading contract address may still be registered: take its chain,
+    // ticker and close time from the registry rather than the bare stub below.
+    const byAddress = await fetchProposalByAddress(normalized);
+    if (byAddress) {
+        registryCache.set(normalized, byAddress);
+        return byAddress;
+    }
+
+    // 6. Use ID directly for unregistered Futarchy proposal/trading addresses.
     const fallback = {
         proposalId: normalized,
         proposalAddress: normalized,

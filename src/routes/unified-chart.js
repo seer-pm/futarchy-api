@@ -14,7 +14,6 @@
 import { fetchPoolsForProposal as fetchPoolsAdapter, fetchCandles } from '../adapters/candles-adapter.js';
 import { resolveProposalId as resolveProposalAdapter } from '../adapters/registry-adapter.js';
 import { IS_CHECKPOINT, ENDPOINTS } from '../config/endpoints.js';
-import { fetchPoolsForProposal } from '../services/algebra-client.js';
 import { getRateCached } from '../services/rate-provider.js';
 import { getSpotPrice, fetchSpotCandles, USE_FUTARCHY_SPOT } from '../services/spot-source.js';
 import { responseCache, candlesCache, spotCache, logCacheStats } from '../utils/cache.js';
@@ -111,9 +110,7 @@ export async function handleUnifiedChartRequest(req, res) {
 
         // ── Step 2: Fetch pools ──
         const t2 = Date.now();
-        const pools = IS_CHECKPOINT
-            ? await fetchPoolsAdapter(tradingContractId, chainId)
-            : await fetchPoolsForProposal(tradingContractId);
+        const pools = await fetchPoolsAdapter(tradingContractId, chainId);
 
         // Pool-type preference: CONDITIONAL is the legacy/canonical YES/NO pool
         // (YES_TOKEN/YES_CURRENCY). Newer markets like GIP-150 v2 are deployed
