@@ -9,7 +9,6 @@
 import { fetchPoolsForProposal as fetchPoolsAdapter } from '../adapters/candles-adapter.js';
 import { resolveProposalId as resolveProposalAdapter, lookupOrgMetadata as lookupOrgMetadataAdapter } from '../adapters/registry-adapter.js';
 import { IS_CHECKPOINT, ENDPOINTS } from '../config/endpoints.js';
-import { fetchPoolsForProposal } from '../services/algebra-client.js';
 import { getRateCached } from '../services/rate-provider.js';
 import { getSpotPrice } from '../services/spot-price.js';
 import { extractTokensFromPools } from '../utils/token-from-pool.js';
@@ -519,9 +518,7 @@ export async function handleMarketEventsRequest(req, res) {
         }
 
         // Fetch pools from Algebra subgraph using trading contract address
-        const pools = IS_CHECKPOINT
-            ? await fetchPoolsAdapter(tradingContractId, chainId)
-            : await fetchPoolsForProposal(tradingContractId);
+        const pools = await fetchPoolsAdapter(tradingContractId, chainId);
         console.log(`   📦 Found ${pools.length} pools`);
 
         // Find YES/NO pool: prefer CONDITIONAL, fall back to PREDICTION (newer

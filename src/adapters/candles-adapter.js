@@ -69,7 +69,7 @@ function addChainPrefix(id, chainId = 100) {
 // GRAPH NODE IMPLEMENTATION
 // ============================================================================
 
-async function graphNode_fetchPools(proposalAddress) {
+async function graphNode_fetchPools(proposalAddress, chainId = 100) {
     const query = `{
         pools(where: { proposal: "${proposalAddress}" }) {
             id
@@ -105,11 +105,11 @@ async function graphNode_fetchPools(proposalAddress) {
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     return data?.pools || [];
 }
 
-async function graphNode_fetchCandles(poolId, minTimestamp, maxTimestamp) {
+async function graphNode_fetchCandles(poolId, minTimestamp, maxTimestamp, chainId = 100) {
     const query = `{
         candles(
             first: 1000
@@ -127,11 +127,11 @@ async function graphNode_fetchCandles(poolId, minTimestamp, maxTimestamp) {
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     return data?.candles || [];
 }
 
-async function graphNode_getLatestPrice(poolId, maxTimestamp = null) {
+async function graphNode_getLatestPrice(poolId, maxTimestamp = null, chainId = 100) {
     const whereClause = maxTimestamp
         ? `pool: "${poolId}", period: "3600", periodStartUnix_lte: "${maxTimestamp}"`
         : `pool: "${poolId}", period: "3600"`;
@@ -148,7 +148,7 @@ async function graphNode_getLatestPrice(poolId, maxTimestamp = null) {
         }
     }`;
 
-    const data = await gqlFetch(ENDPOINTS.candles, query);
+    const data = await gqlFetch(candlesUpstream(chainId), query);
     const candle = data?.candles?.[0];
     return candle ? parseFloat(candle.close) : 0;
 }
@@ -278,7 +278,7 @@ async function checkpoint_getLatestPrice(poolId, maxTimestamp = null, chainId = 
 export async function fetchPoolsForProposal(proposalAddress, chainId = 100) {
     return IS_CHECKPOINT
         ? checkpoint_fetchPools(proposalAddress, chainId)
-        : graphNode_fetchPools(proposalAddress);
+        : graphNode_fetchPools(proposalAddress, chainId);
 }
 
 /**
@@ -294,7 +294,7 @@ export async function fetchPoolsForProposal(proposalAddress, chainId = 100) {
 export async function fetchCandles(poolId, minTimestamp, maxTimestamp, chainId = 100) {
     return IS_CHECKPOINT
         ? checkpoint_fetchCandles(poolId, minTimestamp, maxTimestamp, chainId)
-        : graphNode_fetchCandles(poolId, minTimestamp, maxTimestamp);
+        : graphNode_fetchCandles(poolId, minTimestamp, maxTimestamp, chainId);
 }
 
 /**
@@ -308,7 +308,7 @@ export async function fetchCandles(poolId, minTimestamp, maxTimestamp, chainId =
 export async function getLatestPrice(poolId, maxTimestamp = null, chainId = 100) {
     return IS_CHECKPOINT
         ? checkpoint_getLatestPrice(poolId, maxTimestamp, chainId)
-        : graphNode_getLatestPrice(poolId, maxTimestamp);
+        : graphNode_getLatestPrice(poolId, maxTimestamp, chainId);
 }
 
 /**
