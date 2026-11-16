@@ -11,6 +11,12 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# The function reads REGISTRY_URL, CANDLES_URL and CANDLES_MAINNET_URL
+# (src/config/endpoints.js) at runtime. Netlify does not pass variables set in
+# this file to functions, so set them in the Netlify UI with the Functions
+# scope; a Deploy Previews value points a preview at another subgraph version
+# without touching production.
+
 # Express owns the routing, so hand it every path. Ordered after nothing
 # else, because there is nothing else: this site serves no static content.
 [[redirects]]
